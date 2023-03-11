@@ -1,0 +1,7 @@
+{% extends "compare_ml/layout.html" %}
+
+{% block body %}
+    {% if plot %}
+        <img src="data:image/png;base64, {{plot|safe}}">
+    {% endif %}
+{% endblock %}

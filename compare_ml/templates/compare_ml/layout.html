@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8"> 
+    <title>ML Demo</title>
+    <link rel="icon" type="image/x-icon" href="images/knn.png">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'portfolio/divs.css' %}">
+    <link rel="stylesheet" href="{% static 'portfolio/buttons.css' %}">
+</head>
+<body>
+    <div style="padding-top: 50px; font-size: 35px;">
+        Fundamental <b>MACHINE LEARNING</b> Models
+    <div>
+    <div style="padding-top: 50px;">
+        <div>
+            Explanation. Make it self explanatory for non-expertise. 
+        </div>
+        <div style="padding-top: 20px;">
+            Data features. 
+        </div>
+        <div style="font-size: 15px; ">
+            Column 1 <input type="checkbox">
+            Column 2 <input type="checkbox">
+            Column 3 <input type="checkbox">
+            Column 4 <input type="checkbox">
+        </div>
+    <div style="padding-top: 50px">
+        <div class="col" style="width: 60%;">
+            {% block body %}
+    
+            {% endblock %}
+        </div>
+        <div class="col" style="width: 38%; text-align: left; padding-top: 40px;">
+            <button class="model-button">Logistic Regression model
+            <button class="model-button">K-Nearest Neighbours model
+            <button class="model-button">Support Vector Machine model
+            <button class="model-button">Decision Tree model
+        </div>
+    </div>
+</body>
+</html>
