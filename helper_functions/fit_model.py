@@ -9,37 +9,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from helper_functions.load_data import load_rent
 
-
-## CLASSIFIER
-def fit_score_model(model, X_train, y_train, X_test, y_test):
-    
-
-    # Fit and score the model 
-    model.fit(X_train, y_train)
-    model.score(X_train, y_train)  ##### DELETE
-    model.score(X_test, y_test)    ##### DELETE
-
-    # Predict labels using test data
-    y_pred = model.predict(X_test)
-
-    # Determine accuracy and F1 score, Round to 1.d.p and convert to percentage 
-    accuracy = accuracy_score(y_test, y_pred)
-    accuracy = round(100*accuracy, 1)     ##### SIMPLIFY TO ONE LINE
-    f1 = f1_score(y_test, y_pred)
-    f1 = round(100*f1, 1)
-
-    return accuracy, f1
-
-def plot_to_html(buffer):
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    image_png= buffer.getvalue()
-    plot = base64.b64encode(image_png)
-    plot = plot.decode('utf-8')
-    buffer.close()    
-    return plot
-
-
 # LOG MODEL
 def log_model(budget, sample_features): 
 
@@ -60,10 +29,12 @@ def log_model(budget, sample_features):
     # Plot
     fig = plt.figure(figsize=(8,4))
     ax  = fig.add_subplot(111, projection='3d')
-    ax.scatter(X_train.size_sqft, X_train.min_to_subway, X_train.one_bed, c=y_train, cmap='RdYlBu', alpha=0.25)  
+    ax.scatter(X_train[feature_names_list[0]], X_train[feature_names_list[1]], X_train[feature_names_list[2]], c=y_train, cmap='RdYlBu', alpha=0.15)  
 
-    plt.xlabel('size_sqft')
-    plt.ylabel('min_to_subway') #### USE SAME METHOD AS KNN TO LABEL Z AXIS TOO
+  
+    ax.set_xlabel(feature_names_list[0])
+    ax.set_ylabel(feature_names_list[1])
+    ax.set_zlabel(feature_names_list[2])
     plt.tight_layout()
     buffer = BytesIO()
     plot = plot_to_html(buffer)
@@ -72,9 +43,7 @@ def log_model(budget, sample_features):
 
 
 
-
 def knn_model(budget, sample_features):
-
     # Load data
     feature_names_list, X_train, X_train_norm, X_test, X_test_norm, y_train, y_test, normalise = load_rent(budget)
     sample_features_norm = normalise.transform([sample_features]) 
@@ -97,6 +66,8 @@ def knn_model(budget, sample_features):
     ax.set_xlabel(feature_names_list[0])
     ax.set_ylabel(feature_names_list[1])
     ax.set_zlabel(feature_names_list[2])
+    ax.set_zticks(range(6))
+    # ax.set_zticklabels([f'{i} bedrooms' for i in range(6)])
 
     ## DETERMINE AND PLOT CLOSEST NEIGHBOURS TO PREDICT POINT
     # Loop through all points in the dataset X_train
@@ -123,6 +94,7 @@ def knn_model(budget, sample_features):
         row_index = neighbor[1]
         # Add neighbors to scatter
         row = X_train.loc[[row_index]]
+    
         ax.scatter(row[feature_names_list[0]].item(), row[feature_names_list[1]].item(), row[feature_names_list[2]].item(), c='dimgrey', marker='1', s=500)
 
         if y_train.iloc[row_index] == 0: 
@@ -158,5 +130,30 @@ def knn_model(budget, sample_features):
 #     return best_k
 
 
+## CLASSIFIER
+def fit_score_model(model, X_train, y_train, X_test, y_test):
+    # Fit and score the model 
+    model.fit(X_train, y_train)
+    model.score(X_train, y_train)  ##### DELETE
+    model.score(X_test, y_test)    ##### DELETE
 
- 
+    # Predict labels using test data
+    y_pred = model.predict(X_test)
+
+    # Determine accuracy and F1 score, Round to 1.d.p and convert to percentage 
+    accuracy = accuracy_score(y_test, y_pred)
+    accuracy = round(100*accuracy, 1)     ##### SIMPLIFY TO ONE LINE
+    f1 = f1_score(y_test, y_pred)
+    f1 = round(100*f1, 1)
+
+    return accuracy, f1
+
+def plot_to_html(buffer):
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png= buffer.getvalue()
+    plot = base64.b64encode(image_png)
+    plot = plot.decode('utf-8')
+    buffer.close()    
+    return plot
+

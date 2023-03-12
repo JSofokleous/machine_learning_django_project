@@ -2,7 +2,7 @@
 
 {% block body %}
     {% if form %}
-    <form action="{% url 'compare_ml:log' %}" method="post">
+    <form action="{% url 'compare_ml:knn' %}" method="post">
         {% csrf_token %}
         {{ form }}
         <input type="submit">
