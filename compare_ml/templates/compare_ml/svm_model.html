@@ -1,0 +1,13 @@
+{% extends "compare_ml/layout.html" %}
+
+{% block body %}
+    <form action="{% url 'compare_ml:svm' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit">
+    </form>
+
+    {% if plot %}
+        <img src="data:image/png;base64, {{plot|safe}}">
+    {% endif %}
+{% endblock %}

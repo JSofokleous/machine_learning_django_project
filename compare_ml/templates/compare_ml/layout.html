@@ -11,32 +11,26 @@
 </head>
 <body>
     <div style="padding-top: 50px; font-size: 35px;">
-        Fundamental <b>MACHINE LEARNING</b> Models
+        COMPARING <b>MACHINE LEARNING</b> MODELS
     <div>
     <div style="padding-top: 50px;">
-        <div>
-            Explanation. Make it self explanatory for non-expertise. 
-        </div>
-        <div style="padding-top: 20px;">
-            Data features. 
-        </div>
-        <div style="font-size: 15px; ">
-            Column 1 <input type="checkbox">
-            Column 2 <input type="checkbox">
-            Column 3 <input type="checkbox">
-            Column 4 <input type="checkbox">
-        </div>
+        Explanation. Make it self explanatory for non-expertise. 
+    </div>
+    <div>
+        <div class="col" style="width: 80%; text-align: left; padding-top: 40px;">
+            <button class="model-button" onclick="location.href = '/log'">Logistic Regression model</button>
+            <button class="model-button" onclick="location.href = '/knn'">K-Nearest Neighbours</button>
+            <button class="model-button" onclick="location.href = '/svm'">Support Vector Machine model</button>
+            <button class="model-button">More coming soon...
+        </div>  
+
+    </div>
+    
     <div style="padding-top: 50px">
-        <div class="col" style="width: 60%;">
+        <div class="col" style="width: 80%;">
             {% block body %}
     
             {% endblock %}
-        </div>
-        <div class="col" style="width: 38%; text-align: left; padding-top: 40px;">
-            <button class="model-button">Logistic Regression model
-            <button class="model-button">K-Nearest Neighbours model
-            <button class="model-button">Support Vector Machine model
-            <button class="model-button">Decision Tree model
         </div>
     </div>
 </body>
