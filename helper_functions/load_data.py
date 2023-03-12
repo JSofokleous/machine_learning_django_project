@@ -1,13 +1,6 @@
 import pandas as pd
-
-def list_feature_names(features, binary):
-    feature_names = {}
-    for i in range(len(features.columns)):
-        feature_names[features.columns[i]] = binary[i]
-    print("Feature names: ", feature_names)
-    feature_names_list = [name for name in feature_names]
-
-    return feature_names, feature_names_list
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 def load_rent(budget):
     # Load data into dataframe
@@ -19,12 +12,29 @@ def load_rent(budget):
     labels = df['max_rent']
 
     # Labels
-    df['one_bed'] = df.bedrooms.apply(lambda x: 1 if x == 1 else 0)
-    df['two_or_more_bed'] = df.bedrooms.apply(lambda x: 1 if x >= 2 else 0)
-    features = df[['size_sqft', 'min_to_subway', 'one_bed', 'two_or_more_bed', 'has_patio', 'has_gym']]
-    bool_data_type = [0, 0, 1, 1, 1, 1]
+    df['one_bed'] = df.bedrooms.apply(lambda x: 1 if x <= 1 else 0)
+    df['two_beds'] = df.bedrooms.apply(lambda x: 1 if x <= 2 and x>1 else 0)
+    df['three_beds'] = df.bedrooms.apply(lambda x: 1 if x <= 3 and x>=2 else 0)
+    df['four_beds'] = df.bedrooms.apply(lambda x: 1 if x <= 5 and x>3 else 0)
+    df['five_beds'] = df.bedrooms.apply(lambda x: 1 if x == 5 else 0)
+    features = df[['size_sqft', 'min_to_subway', 'one_bed', 'two_beds', 'three_beds','four_beds','five_beds','has_patio', 'has_gym']]
 
-    print('\nAVG SIZE: ', df.size_sqft.mean())
-    print('AVG TIME TO SUBWAY', df.min_to_subway.mean())
+    # DELETE??? Used only in knn.
+    bool_data_type = [0, 0, 1, 1, 1, 1, 1, 1, 1]
+    feature_names = {}
+    for i in range(len(features.columns)):
+        feature_names[features.columns[i]] = bool_data_type[i]
+    print("Feature names: ", feature_names)
+    feature_names_list = [name for name in feature_names]
 
-    return features, bool_data_type, labels 
+
+    # Split data into train and test set (where the dataframe X holds the features, and the series y holds the labels)
+    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size = 0.2, random_state=50)
+
+    # Normalise the feature data (mean = 0, std = 1 using Z-score method), only fit StandardScalar to train data.
+    normalise = StandardScaler()
+    X_train_norm = normalise.fit_transform(X_train)
+    X_test_norm = normalise.transform(X_test)
+    X_train.reset_index(inplace=True, drop=True)    
+    
+    return feature_names_list, X_train, X_train_norm, X_test, X_test_norm, y_train, y_test, normalise

@@ -1,31 +1,30 @@
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import f1_score
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
+
 import pandas as pd
+import matplotlib.pyplot as plt
 from io import BytesIO
 import base64 #get_plot()
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
+from helper_functions.load_data import load_rent
+
 
 ## CLASSIFIER
 def fit_score_model(model, X_train, y_train, X_test, y_test):
     
+
+    # Fit and score the model 
     model.fit(X_train, y_train)
-
-    # Score the model 
-    model.score(X_train, y_train)
-    model.score(X_test, y_test)
-
-    # Analyse coefficients by printing:
-    #### AttributeError: coef_ is only available when using a linear kernel
-    # list(zip(['Sex','Age','FirstClass','SecondClass', 'Master'],model.coef_[0]))
+    model.score(X_train, y_train)  ##### DELETE
+    model.score(X_test, y_test)    ##### DELETE
 
     # Predict labels using test data
     y_pred = model.predict(X_test)
 
     # Determine accuracy and F1 score, Round to 1.d.p and convert to percentage 
     accuracy = accuracy_score(y_test, y_pred)
-    accuracy = round(100*accuracy, 1)
+    accuracy = round(100*accuracy, 1)     ##### SIMPLIFY TO ONE LINE
     f1 = f1_score(y_test, y_pred)
     f1 = round(100*f1, 1)
 
@@ -41,44 +40,30 @@ def plot_to_html(buffer):
     return plot
 
 
-from helper_functions.load_data import load_rent, list_feature_names
-
 # LOG MODEL
-def log_model():
-    # LOAD DATA
-    features, bool_data_type, labels = load_rent(8000)
-    # Split data into train and test set (where the dataframe X holds the features, and the series y holds the labels)
-    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size = 0.2, random_state=50)
-    # Normalise the feature data (mean = 0, std = 1 using Z-score method), only fit StandardScalar to train data.
-    normalise = StandardScaler()
-    X_train_norm = normalise.fit_transform(X_train)
-    X_test_norm = normalise.transform(X_test)
-    X_train.reset_index(inplace=True, drop=True)
-    # List current selected features
-    feature_names, feature_names_list = list_feature_names(features, bool_data_type)
+def log_model(budget, sample_features): 
 
-    # Return user input sample for selected features, and normalise
-    # sample_features = get_sample(feature_names) 
-    sample_features = [200, 5, 1, 0, 0, 0]
-
+    # Load data
+    feature_names_list, X_train, X_train_norm, X_test, X_test_norm, y_train, y_test, normalise = load_rent(budget)
     sample_features_norm = normalise.transform([sample_features])
 
     # Fit data to model and determine accuracy 
     classifier = LogisticRegression()
     accuracy, f1 = fit_score_model(classifier, X_train_norm, y_train, X_test_norm, y_test)
 
-    # Make prediction for probability of label for sample test data. [[failure, survival]]
+    # Make prediction for probability of label for sample test data
     prediction_prob = classifier.predict_proba(sample_features_norm)
-    prediction_prob = round(100*prediction_prob[0][1], 2)
+    prediction_prob = round(100*prediction_prob[0][1], 2)       #####SIMPLIFY
     if prediction_prob > 50: prediction = 1
     else: prediction = 0
 
+    # Plot
     fig = plt.figure(figsize=(8,4))
     ax  = fig.add_subplot(111, projection='3d')
     ax.scatter(X_train.size_sqft, X_train.min_to_subway, X_train.one_bed, c=y_train, cmap='RdYlBu', alpha=0.25)  
 
     plt.xlabel('size_sqft')
-    plt.ylabel('min_to_subway')
+    plt.ylabel('min_to_subway') #### USE SAME METHOD AS KNN TO LABEL Z AXIS TOO
     plt.tight_layout()
     buffer = BytesIO()
     plot = plot_to_html(buffer)
@@ -86,51 +71,45 @@ def log_model():
     return plot, prediction, prediction_prob, accuracy, f1
 
 
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import f1_score
-import matplotlib.pyplot as plt
 
-def get_best_k(X_train, y_train, X_test, y_test):
-    k_list = range(1, 101)
-    scores = []
-    best_score, best_k = 0, 0
-    for k in k_list:
-        classifier = KNeighborsClassifier(n_neighbors=k)
-        classifier.fit(X_train, y_train)
-        score = classifier.score(X_test, y_test)
-        scores.append(score)
-        if score > best_score: 
-            best_score = score
-            best_k = k
-    # plt.plot(k_list, scores)
-    # plt.show()
-    return best_k
 
-def k_distance(data_point, sample_features, feature_names_list):
-    squared_difference = 0
-    # Datapoint: [1, 2, 3, 4]
-    # Samplepoint: [[1.3, -1.5, 1.8, -0.5, 4.9]]
-    for i in range(len(data_point)):
-        squared_difference += (data_point[feature_names_list[i]].item() - sample_features[i]) ** 2
-        final_distance = squared_difference ** 0.5
-        return final_distance
+def knn_model(budget, sample_features):
 
-def k_classify(sample_features_norm, X_train_norm, y_train, k, feature_names_list, sample_features, X_train):
+    # Load data
+    feature_names_list, X_train, X_train_norm, X_test, X_test_norm, y_train, y_test, normalise = load_rent(budget)
+    sample_features_norm = normalise.transform([sample_features]) 
 
-    fig = plt.figure()
+    # Determine best value of k
+    # k = get_best_k(X_train_norm, y_train, X_test_norm, y_test)
+    k = 10
+
+    # Fit data to model and determine accuracy 
+    classifier = KNeighborsClassifier(k)
+    accuracy, f1 = fit_score_model(classifier, X_train_norm, y_train, X_test_norm, y_test)
+
+    # Predict label of sample using own KNN model
+    fig = plt.figure(figsize=(8,4))
     ax  = fig.add_subplot(111, projection='3d')
+
+    ##### CHANGE TO X_train.size_sqft
     ax.scatter(X_train[feature_names_list[0]], X_train[feature_names_list[1]], X_train[feature_names_list[2]], c=y_train, cmap='RdYlBu', alpha=0.15)
     ax.scatter(sample_features[0], sample_features[1], sample_features[2], c='k', marker='o', s=300)
     ax.set_xlabel(feature_names_list[0])
     ax.set_ylabel(feature_names_list[1])
     ax.set_zlabel(feature_names_list[2])
 
-    ## DETERMINE AND PLOT CLOSEST NEIGHBOURS
+    ## DETERMINE AND PLOT CLOSEST NEIGHBOURS TO PREDICT POINT
     # Loop through all points in the dataset X_train
     distances = []
     for row_index in range(len(X_train)):
         data_point = X_train.loc[[row_index]]
-        distance_to_point = k_distance(data_point, sample_features, feature_names_list)
+
+        # Calculate distance to point in row_index, for each feature i
+        squared_difference = 0
+        for i in range(len(data_point)):
+            squared_difference += (data_point[feature_names_list[i]].item() - sample_features[i]) ** 2
+            distance_to_point = squared_difference ** 0.5
+
         # Adding the distance and point associated with that distance
         distances.append([distance_to_point, row_index])
 
@@ -151,11 +130,33 @@ def k_classify(sample_features_norm, X_train_norm, y_train, k, feature_names_lis
         elif y_train.iloc[row_index] == 1:
             success += 1 
 
+    prediction = 0
+    prediction_prob = None
+    if success > fail: prediction = 1
+    elif fail == success: 
+        prediction = y_train.iloc[neighbors[0][1]]
 
-    plt.show()
-       
-    if success > fail: return 1
-    elif fail > success: return 0
-    else: 
-        print('Equal number of neighbours!')
-        return y_train.iloc[neighbors[0][1]]
+    plt.tight_layout() ###### POTENTIAL WEAK POINT, NOT PLT. but AX.
+    buffer = BytesIO()
+    plot = plot_to_html(buffer)
+ 
+    return plot, prediction, prediction_prob, accuracy, f1
+
+
+# def get_best_k(X_train, y_train, X_test, y_test):
+#     k_list = range(1, 101)
+#     scores = []
+#     best_score, best_k = 0, 0
+#     for k in k_list:
+#         classifier = KNeighborsClassifier(n_neighbors=k)
+#         classifier.fit(X_train, y_train)
+#         score = classifier.score(X_test, y_test)
+#         scores.append(score)
+#         if score > best_score: 
+#             best_score = score
+#             best_k = k
+#     return best_k
+
+
+
+ 
