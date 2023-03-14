@@ -8,7 +8,7 @@ def index(request):
 
 def log_model_plot(request):
     # Get plot using default rent budget/property features
-    plot, prediction, prediction_prob, accuracy, f1 = log_model(5000, [940, 5, 1, 0, 0])
+    plot, prediction, accuracy, f1 = log_model(5000, [3000, 5, 1, 0, 0])
 
     # Maintain input values upon submitting form. When no input values, load a blank form. 
     previous_form = None
@@ -26,20 +26,24 @@ def log_model_plot(request):
             return render(request, "compare_ml/log_model.html", {
                 'plot': plot, 
                 'form': budget_form,
+                'prediction_prob': prediction,
+                'accuracy': accuracy
             })
         # Overwrite plot using sample rent budget/property features input in form
-        plot, prediction, prediction_prob, accuracy, f1 = log_model(budget, features)
+        plot, prediction, accuracy, f1 = log_model(budget, features)
     
     # Render plot (with either default features or overwritten by sample features)
     return render(request, "compare_ml/log_model.html", {
         'plot': plot, 
         'form': previous_form,
+        'prediction_prob': prediction,
+        'accuracy': accuracy
     })
 
 ## HOW TO PREVENT DOUBLE CLICKING CRASHING PROGRAM
 def knn_model_plot(request):
     # Get plot using default rent budget/property features
-    plot, prediction, prediction_prob, accuracy, f1 = knn_model(5000, [940, 5, 1, 0, 0])
+    plot, prediction, accuracy, f1 = knn_model(5000, [3000, 5, 1, 0, 0])
 
     # Maintain input values upon submitting form. When no input values, load a blank form. 
     previous_form = None
@@ -57,18 +61,22 @@ def knn_model_plot(request):
             return render(request, "compare_ml/knn_model.html", {
                 'plot': plot, 
                 'form': budget_form,
+                'prediction': prediction,
+                'accuracy': accuracy
             })
         
         # Overwrite plot using sample rent budget/property features input in form
-        plot, prediction, prediction_prob, accuracy, f1 = knn_model(budget, features)
+        plot, prediction, accuracy, f1 = knn_model(budget, features)
 
     return render(request, "compare_ml/knn_model.html", {
         'plot': plot,
         'form': previous_form,
+        'prediction': prediction,
+        'accuracy': accuracy
     }) 
 
 def svm_model_plot(request):
-    plot, prediction, prediction_prob, accuracy, f1 = svm_model(5000, [940, 5, 1, 0, 0])
+    plot, prediction, accuracy, f1 = svm_model(5000, [940, 5, 1, 0, 0])
 
     return render(request, "compare_ml/svm_model.html", {
         'plot': plot,
@@ -85,7 +93,7 @@ class BudgetForm(forms.Form):
         ('4', '30+ mins'),
     )
     bedroom_nums = (
-        ('1', '1 bedrooms'),
+        ('1', '1 bedroom'),
         ('2', '2 bedrooms'),
         ('3', '3 bedrooms'),
         ('4', '4 bedrooms'),
@@ -93,12 +101,12 @@ class BudgetForm(forms.Form):
     )
 
     # Form input fields for rent budget and propety features
-    budget = forms.IntegerField(label="Monthly?? Rent Budget (USD)", min_value=2000, max_value=20000)
-    size = forms.IntegerField(label="Size (sqft)", min_value=250, max_value=5000)
-    subway = forms.ChoiceField(choices = time_to_subway, label="subway")
-    bedrooms = forms.ChoiceField(choices = bedroom_nums, label="bedrooms")
-    gym = forms.BooleanField(label="gym", required=False)
-    patio = forms.BooleanField(label="patio", required=False)
+    budget = forms.IntegerField(label="Rent Budget", min_value=2000, max_value=20000, initial=5000, widget=forms.NumberInput(attrs={"autofocus": True, "placeholder": 'Rent'}))
+    size = forms.IntegerField(label="Size (sqft)", min_value=250, max_value=5000, initial=3000)
+    subway = forms.ChoiceField(choices = time_to_subway, label="Nearest underground station")
+    bedrooms = forms.ChoiceField(choices = bedroom_nums, label="Bedrooms")
+    gym = forms.BooleanField(label="Gym", required=False)
+    patio = forms.BooleanField(label="Patio", required=False)
 
 
 def get_sample_data(budget_form):

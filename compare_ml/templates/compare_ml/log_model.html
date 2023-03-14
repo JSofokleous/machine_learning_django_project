@@ -1,13 +1,31 @@
 {% extends "compare_ml/layout.html" %}
 
 {% block body %}
-    <form action="{% url 'compare_ml:log' %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit">
-    </form>
+    <div style="text-align: left">
+        <!-- COL 1 -->
+        <div class="col" style="width: 50%;">
+            {% if plot %}
+                <img src="data:image/png;base64, {{plot|safe}}">
+            {% endif %}
+        </div>
+        <div  class="col" style="width: 45%; padding-top: 20px; text-align: left">
+            Enter your budget and the features of your desired propety, then
+            {% if form %}
+            <table>
+                <form action="{% url 'compare_ml:log' %}" method="post">
+                    {% csrf_token %}
+                    {{ form.as_table }}
+                    <input type="submit">
+                </form>
+            </table>
+            {% endif %}
+            <p>The probability your desired property is within the stated budget is {{ prediction_prob }}%</p>
+            <p>This model is accurate to {{ accuracy }}%</p>
+        </div>
+    </div>
 
-    {% if plot %}
-        <img src="data:image/png;base64, {{plot|safe}}">
-    {% endif %}
+    <!-- ROW 3C -->
+    <div class="row">
+        EXPLAIN LOG REG USING LOG GRAPH (BINARY LABELS)
+    </div>
 {% endblock %}

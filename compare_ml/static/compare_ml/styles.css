@@ -1,0 +1,91 @@
+/* DIVS */
+div {
+  font-family: "Segoe UI","Roboto","Helvetica Neue";
+  font-size: 20px;
+  text-align: center;
+}
+.col {
+  display: inline-block;
+  vertical-align: top;
+}
+.row {
+  text-align: left; 
+  padding-left: 100px; 
+  padding-top: 40px;
+  padding-bottom: 40px; 
+}
+.header-row {
+  padding-top: 20px; 
+  padding-bottom: 30px;
+}
+.buttons-row {
+  text-align: left; 
+  padding-left: 60px; 
+  padding-top: 30px;
+  padding-bottom: 30px; 
+  margin-bottom: 20px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.4) 30%, #5db0fe)
+}
+
+
+/* HEADINGS */
+.title {
+  font-family: "Segoe UI","Roboto","Helvetica Neue";
+  text-align: center;
+  font-size: 35px;
+}
+
+
+/* BUTTONS */
+.button {
+  display: inline-block;
+  width: 280px;
+  position: relative;
+
+  transition: background-color 0.5s, color 0.5s;
+  cursor: pointer;
+
+  color: black;
+  font-weight: bold;
+  font-size: 15px;
+
+  background-color: #5db0fe;
+  border-color: #9ccfff;
+
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+.button:hover{
+  opacity: 0.8;
+  color: #0082fc;
+  background-color: #ffffff;
+  border-color:#5db0fe;
+  border-width: 2px;
+}
+.button:active{background-color: #9ccfff;}
+
+.button-block {
+  display: block;
+  overflow: hidden;
+  text-align: left;
+
+}
+.button-expand {
+  right: -100%;
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+  color: white;
+}
+.button:hover + .button-expand {
+  right:0%;
+}
+/* home button */
+a {
+  text-decoration: none;
+  color:black;
+}
+
+

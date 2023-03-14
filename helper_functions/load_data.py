@@ -8,7 +8,8 @@ def load_rent(budget):
     df = pd.DataFrame(streeteasy)
 
     # Features
-    labels = df.rent.apply(lambda x: 0 if x >= budget else 1)
+    df['within_budget'] = df.rent.apply(lambda x: 0 if x >= budget else 1)
+    labels = df['within_budget']
 
     # Labels
     df.bedrooms = df.bedrooms.apply(lambda x: x if x.is_integer() else x//1+1).apply(lambda x: 1 if x==0 else x)
@@ -23,5 +24,7 @@ def load_rent(budget):
     X_train_norm = normalise.fit_transform(X_train)
     X_test_norm = normalise.transform(X_test)
     X_train.reset_index(inplace=True, drop=True)    
+    y_train.reset_index(inplace=True, drop=True)    
+
     
     return feature_names_list, X_train, X_train_norm, X_test, X_test_norm, y_train, y_test, normalise

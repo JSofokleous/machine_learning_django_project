@@ -1,15 +1,38 @@
 {% extends "compare_ml/layout.html" %}
 
 {% block body %}
-    {% if form %}
-    <form action="{% url 'compare_ml:knn' %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit">
-    </form>
-    {% endif %}
 
-    {% if plot %}
-        <img src="data:image/png;base64, {{plot|safe}}">
-    {% endif %}
+    <!-- ROW 3A -->
+    <div style="text-align: left">
+        <!-- COL 1 -->
+        <div class="col" style="width: 50%;">
+            {% if plot %}
+                <img src="data:image/png;base64, {{plot|safe}}">
+            {% endif %}
+        </div>
+        <!-- COL 1 -->
+        <div class="col" style="width: 45%; padding-top: 20px; text-align: left">
+            Enter your budget and the features of your desired propety, then
+            <table>
+                <form action="{% url 'compare_ml:knn' %}" method="post">
+                    {% csrf_token %}
+                    {{ form.as_table }}
+                    <input type="submit">
+                </form>
+            </table>
+
+            {% if prediction == 1 %}
+                <p>Your desired property is within the stated budget.</p>
+            {% else %}
+                <p>Your desired property is <b>NOT</b> within the stated budget.</p>
+            {% endif %}
+            <p>This model is accurate to {{ accuracy }}%</p>
+        </div>
+    </div>
+
+    <!-- ROW 3C -->
+    <div class="row">
+        explanation
+    </div>
+
 {% endblock %}

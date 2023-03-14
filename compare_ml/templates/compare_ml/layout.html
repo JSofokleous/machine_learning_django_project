@@ -6,32 +6,51 @@
     <title>ML Demo</title>
     <link rel="icon" type="image/x-icon" href="images/knn.png">
     {% load static %}
-    <link rel="stylesheet" href="{% static 'portfolio/divs.css' %}">
-    <link rel="stylesheet" href="{% static 'portfolio/buttons.css' %}">
+    <link rel="stylesheet" href="{% static 'compare_ml/styles.css' %}">
 </head>
 <body>
-    <div style="padding-top: 50px; font-size: 35px;">
-        COMPARING <b>MACHINE LEARNING</b> MODELS
-    <div>
-    <div style="padding-top: 50px;">
-        Explanation. Make it self explanatory for non-expertise. 
+    
+    <!-- ROW 1 -->
+    <div class="header-row">
+        <!-- COL 1 -->
+        <div class="col" style="padding-top: 8px;">
+            <a href="{% url 'compare_ml:index' %}">home</a>
+        </div>
+        <!-- COL 2 -->
+        <div class="col" style="width: 80%; font-size: 35px; padding-right: 70px;">
+            COMPARING <b>MACHINE LEARNING</b> MODELS
+        </div>
     </div>
-    <div>
-        <div class="col" style="width: 80%; text-align: left; padding-top: 40px;">
-            <button class="model-button" onclick="location.href = '/log'">Logistic Regression model</button>
-            <button class="model-button" onclick="location.href = '/knn'">K-Nearest Neighbours</button>
-            <button class="model-button" onclick="location.href = '/svm'">Support Vector Machine model</button>
-            <button class="model-button">More coming soon...
-        </div>  
 
+    <!-- ROW 2 -->
+    <div class="buttons-row">
+        <div class="col" style = "text-align: left;">
+            <div class="button-block">
+                <button class="button" style="border-top-left-radius: 10px; border-top-right-radius: 10px;" onclick="location.href = '/log'">Logistic Regression model</button>
+                <div class="button-expand">Text 1ww23jfdjasdofhwjsajfabdjsksndandasndajksdnsjakdnasjkndasndasndasnj</div>
+            </div>
+            <div class="button-block">
+                <button class="button button--loading" onclick="location.href = '/knn'">K-Nearest Neighbours</button>
+                <div class="button-expand">Text 1ww23</div>
+            </div>
+            <div class="button-block">
+                <button class="button" onclick="location.href = '/svm'">Support Vector Machine model</button>
+                <div class="button-expand">Text 1ww23</div>
+            </div>
+            <div class="button-block">
+                <button class="button" style="border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">More coming soon...</button>
+                <div class="button-expand">Text 1ww23</div>
+            </div>
+        </div>  
     </div>
     
-    <div style="padding-top: 50px">
-        <div class="col" style="width: 80%;">
+    <!-- ROW 3 -->
+    <div>
+        <div>
             {% block body %}
-    
             {% endblock %}
         </div>
     </div>
+
 </body>
 </html>

@@ -12,6 +12,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from helper_functions.load_data import load_rent
 
+
+
 # LOGISTIC REGRESSION MODEL
 def log_model(budget, sample_features): 
     # Load data
@@ -23,31 +25,32 @@ def log_model(budget, sample_features):
     accuracy, f1 = fit_score_model(classifier, X_train_norm, y_train, X_test_norm, y_test)
 
     # Make prediction for probability of label for sample test data
-    prediction_prob = classifier.predict_proba(sample_features_norm)
-    prediction_prob = round(100*prediction_prob[0][1], 2)
-    if prediction_prob > 50: prediction = 1
-    else: prediction = 0
+    prediction = classifier.predict_proba(sample_features_norm)
+    prediction = round(100*prediction[0][1], 2)
 
     # Plot
-    fig = plt.figure(figsize=(8,4))
+    fig = plt.figure(figsize=(6,4))
     ax  = fig.add_subplot(111, projection='3d')
-    ax.scatter(X_train[feature_names_list[0]], X_train[feature_names_list[1]], X_train[feature_names_list[2]], c=y_train, cmap='RdYlBu', alpha=0.15)  
-    ax.set_xlabel(feature_names_list[0])
-    ax.set_ylabel(feature_names_list[1])
-    ax.set_zlabel(feature_names_list[2])
+    ax.scatter(X_train[feature_names_list[0]], X_train[feature_names_list[1]], X_train[feature_names_list[2]], c=y_train, cmap='RdYlBu', alpha=0.15, label='Training data')
+    ax.scatter(sample_features[0], sample_features[1], sample_features[2], c='k', marker='o', s=200, label='Desired property')
+    ax.set_xlabel('Size of property (sqft)')
+    ax.set_ylabel('Mins to underground station')
+    ax.set_zlabel('Bedrooms')
     ax.set_zticks(range(6))
+    ax.legend()
     plt.tight_layout()
     buffer = BytesIO()
     plot = plot_to_html(buffer)
     plt.close()
 
-    return plot, prediction, prediction_prob, accuracy, f1
+    return plot, prediction, accuracy, f1
 
 
 # K-NEAREST NEIGHBOURS
 def knn_model(budget, sample_features):
     # Load data
     feature_names_list, X_train, X_train_norm, X_test, X_test_norm, y_train, y_test, normalise = load_rent(budget)
+    
     sample_features_norm = normalise.transform([sample_features]) 
     k = 10
     # k = get_best_k(X_train, y_train, X_test, y_test)
@@ -57,28 +60,29 @@ def knn_model(budget, sample_features):
     accuracy, f1 = fit_score_model(classifier, X_train_norm, y_train, X_test_norm, y_test)
 
     # Predict label of sample using own KNN model
-    fig = plt.figure(figsize=(8,4))
+    fig = plt.figure(figsize=(6,4))
     ax  = fig.add_subplot(111, projection='3d')
-    ax.scatter(X_train[feature_names_list[0]], X_train[feature_names_list[1]], X_train[feature_names_list[2]], c=y_train, cmap='RdYlBu', alpha=0.15)
-    ax.scatter(sample_features[0], sample_features[1], sample_features[2], c='k', marker='o', s=300)
-    ax.set_xlabel(feature_names_list[0])
-    ax.set_ylabel(feature_names_list[1])
-    ax.set_zlabel(feature_names_list[2])
+    ax.scatter(X_train[feature_names_list[0]], X_train[feature_names_list[1]], X_train[feature_names_list[2]], c=y_train, cmap='RdYlBu', alpha=0.15, label='Training data')
+    ax.scatter(sample_features[0], sample_features[1], sample_features[2], c='k', marker='o', s=200, label='Desired property')
+    ax.set_xlabel('Size of property (sqft)')
+    ax.set_ylabel('Mins to underground station')
+    ax.set_zlabel('Bedrooms')
     ax.set_zticks(range(6))
 
     ## DETERMINE AND PLOT CLOSEST NEIGHBOURS TO PREDICT POINT
     # Loop through all points in the dataset X_train
     distances = []
+
     # Filter realistic ranges to improve runtime
     if sample_features[0] <= 1200:
-        choose_rows = X_train[(X_train.size_sqft <= 1.1*sample_features[0])]
-        choose_rows = choose_rows[(choose_rows.size_sqft >= 0.9*sample_features[0])]
+        subset_i = list(X_train[(X_train.size_sqft.between(0.9*sample_features[0],1.1*sample_features[0]))].index.values)
     else:
-        choose_rows = X_train[(X_train.size_sqft >= 0.8*sample_features[0])]
-    choose_rows = choose_rows.reset_index(drop=True)
+        subset_i = list(X_train[X_train.size_sqft >= 0.8*sample_features[0]].index.values)
+    X_train_subset = X_train.iloc[subset_i].reset_index(drop=True)
+    y_train_subset = y_train.iloc[subset_i].reset_index(drop=True)
 
-    for row_index in range(len(choose_rows)):
-        data_point = choose_rows.loc[[row_index]]
+    for row_index in range(len(X_train_subset)):
+        data_point = X_train_subset.loc[[row_index]]
 
         # Calculate distance to point in row_index, for each feature i
         squared_difference = 0
@@ -97,28 +101,32 @@ def knn_model(budget, sample_features):
     for neighbor in neighbors:
         row_index = neighbor[1]
         # Add neighbors to scatter
-        row = choose_rows.loc[[row_index]]
+        row = X_train_subset.loc[[row_index]]
     
-        ax.scatter(row[feature_names_list[0]].item(), row[feature_names_list[1]].item(), row[feature_names_list[2]].item(), c='dimgrey', marker='1', s=500)
+        if success == 0 and fail == 0:
+            ax.scatter(row[feature_names_list[0]].item(), row[feature_names_list[1]].item(), row[feature_names_list[2]].item(), c='dimgrey', marker='1', s=500, label='Nearest neighbours')
+        else:
+            ax.scatter(row[feature_names_list[0]].item(), row[feature_names_list[1]].item(), row[feature_names_list[2]].item(), c='dimgrey', marker='1', s=500)
 
-        if y_train.iloc[row_index] == 0: 
+        if y_train_subset.iloc[row_index] == 0: 
             fail += 1
-        elif y_train.iloc[row_index] == 1:
+
+        elif y_train_subset.iloc[row_index] == 1:
             success += 1 
 
     prediction = 0
     prediction_prob = None
     if success > fail: prediction = 1
     elif fail == success: 
-        prediction = y_train.iloc[neighbors[0][1]]
+        prediction = y_train_subset.iloc[neighbors[0][1]]
 
+    ax.legend()
     plt.tight_layout()
     buffer = BytesIO()
     plot = plot_to_html(buffer)
     plt.close()
 
- 
-    return plot, prediction, prediction_prob, accuracy, f1
+    return plot, prediction, accuracy, f1
 
 
 def svm_model(budget, sample_features):
@@ -175,7 +183,7 @@ def svm_model(budget, sample_features):
     plot = plot_to_html(buffer)
     plt.close()
 
-    return plot, prediction, prediction_prob, accuracy, f1
+    return plot, prediction, accuracy, f1
 
 
     
