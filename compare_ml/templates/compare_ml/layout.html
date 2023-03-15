@@ -3,10 +3,10 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8"> 
-    <title>ML Demo</title>
-    <link rel="icon" type="image/x-icon" href="images/knn.png">
+    <title>Machine Learning Demo</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'compare_ml/styles.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'compare_ml/icon.png' %}">
 </head>
 <body>
     
@@ -26,20 +26,20 @@
     <div class="buttons-row">
         <div class="col" style = "text-align: left;">
             <div class="button-block">
-                <button class="button" style="border-top-left-radius: 10px; border-top-right-radius: 10px;" onclick="location.href = '/log'">Logistic Regression model</button>
-                <div class="button-expand">Text 1ww23jfdjasdofhwjsajfabdjsksndandasndajksdnsjakdnasjkndasndasndasnj</div>
+                <button class="button" style="border-top-left-radius: 10px; border-top-right-radius: 10px;" onclick="location.href = '/logistic-regression'">Logistic Regression model</button>
+                <div class="button-expand">By plotting a logarithmic line of best fit on the training data, a conclusion for your input data can be predicted.</div>
             </div>
             <div class="button-block">
-                <button class="button button--loading" onclick="location.href = '/knn'">K-Nearest Neighbours</button>
-                <div class="button-expand">Text 1ww23</div>
+                <button class="button button--loading" onclick="location.href = '/k-nearest-neighbours'">K-Nearest Neighbours model</button>
+                <div class="button-expand">By comparing your input data to the most similiar training data, a conclusion can be predicted.</div>
             </div>
             <div class="button-block">
-                <button class="button" onclick="location.href = '/svm'">Support Vector Machine model</button>
-                <div class="button-expand">Text 1ww23</div>
+                <button class="button" onclick="location.href = '/support-vector-machine'">Support Vector Machine model</button>
+                <div class="button-expand">A conclusion for your input data is predicted based on a decision boundary, calculated from the training data.</div>
             </div>
             <div class="button-block">
-                <button class="button" style="border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">More coming soon...</button>
-                <div class="button-expand">Text 1ww23</div>
+                <button class="button" style="border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; cursor:default;">More coming soon...</button>
+                <div class="button-expand">A decision tree model, Naive Bayes model and unsupervised models are all coming soon.</div>
             </div>
         </div>  
     </div>

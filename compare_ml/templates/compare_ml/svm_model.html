@@ -13,24 +13,48 @@
         <div class="col" style="width: 45%; padding-top: 20px; text-align: left">
             Enter your budget and the features of your desired propety, then
             <table>
-                <form action="{% url 'compare_ml:svm' %}" method="post">
+                <form action="{% url 'compare_ml:support-vector-machine' %}" method="post">
                     {% csrf_token %}
                     {{ form.as_table }}
                     <input type="submit">
                 </form>
             </table>
-            
             {% if prediction == 1 %}
-                <p>Your desired property is within the stated budget.</p>
+                <p>This model predicts your desired property is within the stated budget, and is accurate to <b>{{ accuracy }}%</b></p>
             {% else %}
-                <p>Your desired property is <b>NOT</b> within the stated budget.</p>
+                <p>This model predicts your desired property is <b>NOT</b> within budget, and is accurate to <b>{{ accuracy }}%</p>
             {% endif %}
-            <p>This model is accurate to {{ accuracy }}%</p>
+            <p style="font-weight: normal">(All the blue training data points on the graph are properties within your budget; all the red are not within your budget.)</p>
         </div>
     </div>
 
     <!-- ROW 3C -->
-    <div class="row">
-        explanation
+    <div class="row" style="font-weight: normal; padding-right: 60px">
+        <h2>HOW DOES THE SUPPORT VECTOR MACHINE MODEL WORK?</h2>
+        <p>
+            The SVM model splits the data into two with a <b>decision boundary</b>. Ideally the data is split perfectly
+            according to their labels e.g. all properties within budget 
+            on one side of the boundary, and all not within budget on the other.
+        </p>
+        <p>
+            If the data points cannot be split by a linear boundary, a <b>kernal</b> transforms 
+            the data into a higher dimension until it can be <b>linearly seperable</b>. The graph above
+            can only display 3 dimensions, but the calculations may require many more. 
+        </p>
+        </p>
+        <p>
+            The decision boundary is calcualated to maxamise the <b>'margin'</b> between the boundary and 
+            the closest data points called the <b>'support vectors'</b>.
+            A soft boundary may ignore some outliers.
+        </p>
+        <br>
+        <u>ADVANTAGES:</u>   
+        <ul>
+            <li>Can make predictins for complex distrubutions of data by transforming them into higher dimensions.</li>
+        </ul>
+        <u>DISADVANTAGES:</u> 
+        <ul>
+            <li>May be hard to configure decision boundary variables such that the boundary does not overfit or underfit the data.</li>
+        </ul>
     </div>
 {% endblock %}

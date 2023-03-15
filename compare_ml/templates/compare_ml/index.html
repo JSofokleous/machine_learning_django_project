@@ -1,5 +1,21 @@
 {% extends "compare_ml/layout.html" %}
 
 {% block body %}
-EXPLAIN PROJECT!
+
+
+<div style="margin: 75px; margin-left: 220px; margin-right: 220px; text-align: left;">
+    <p>This project attempts to test different machine learning models on a real dataset on <b>rent prices in New York</b>.</p>
+
+    <p>Each 'data point' is a property, with <b>features</b> such as size, number of bedrooms and distance to underground. 
+        Every property has an associated <b>label:</b> <b>within the stated budget</b> OR <b>not with the stated budget</b>.</p>
+
+    <p>Given an input sample with the features of your desired propety, each of the machine learning models will <b>predict
+        if this property is within your budget</b>, based on the features and labels of the properties in the dataset.</p>
+
+    <!-- <p>The dataset is split into training data, which is used to train the machine learning model, and testing data, 
+        which can be used to predict the accuracy of the model.</p> -->
+</div>
+
+<h2>CHOOSE A MODEL ABOVE TO GET STARTED!</h2>
+
 {% endblock %}

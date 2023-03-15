@@ -12,20 +12,32 @@
             Enter your budget and the features of your desired propety, then
             {% if form %}
             <table>
-                <form action="{% url 'compare_ml:log' %}" method="post">
+                <form action="{% url 'compare_ml:logistic-regression' %}" method="post">
                     {% csrf_token %}
                     {{ form.as_table }}
                     <input type="submit">
                 </form>
             </table>
             {% endif %}
-            <p>The probability your desired property is within the stated budget is {{ prediction_prob }}%</p>
-            <p>This model is accurate to {{ accuracy }}%</p>
+            <p>This model predicts the probability your desired property is within budget is <b>{{ prediction_prob }}%</b>, and is accurate to <b>{{ accuracy }}%</b></p>
+            <p style="font-weight: normal">(All the blue training data points on the graph are properties within your budget; all the red are not within your budget.)</p>
         </div>
     </div>
 
     <!-- ROW 3C -->
-    <div class="row">
-        EXPLAIN LOG REG USING LOG GRAPH (BINARY LABELS)
+    <div class="row" style="font-weight: normal; padding-right: 60px">
+        <h2>HOW DOES THE LOGISTIC REGRESSION MODEL WORK?</h2>
+
+        <p>When labels are binary, a linear regression cannot fit to points accurately, 
+            so a logisitc regression model may be used.</p>
+        <br>
+        <u>ADVANTAGES:</u>   
+        <ul>
+            <li>Can be used to predict the probability your sample will have a particular label.</li>
+        </ul>
+        <u>DISADVANTAGES:</u> 
+        <ul>
+            <li>May not be accurate for complex distrubutions of data with many features.</li>
+        </ul>
     </div>
 {% endblock %}

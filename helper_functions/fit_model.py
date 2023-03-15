@@ -2,6 +2,8 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import axes3d
+import matplotlib.pyplot as plt
 from io import BytesIO
 import base64 #get_plot()
 from sklearn.neighbors import KNeighborsClassifier
@@ -132,40 +134,37 @@ def knn_model(budget, sample_features):
 def svm_model(budget, sample_features):
     feature_names_list, X_train, X_train_norm, X_test, X_test_norm, y_train, y_test, normalise = load_rent(budget)
     sample_features_norm = normalise.transform([sample_features])
+    sample_features_norm = [sample_features_norm[0][:2]]
    
     # Only allow 2 features to compare (automatically set to first 2 columns)
     X_train_norm = np.vstack([X_train_norm[:,0], X_train_norm[:,1]]).T
     X_test_norm = np.vstack([X_test_norm[:,0], X_test_norm[:,1]]).T
-    sample_features_norm = [sample_features_norm[0][:2]]
-
-    # Fit data to model and determine accuracy 
-    classifier = SVC(kernel='linear', C = 0.01)
-    # classifier = SVC(kernel='rbf', gamma = 0.05, C = 1000)
-    accuracy, f1 = fit_score_model(classifier, X_train_norm, y_train, X_test_norm, y_test)
-
-    # Predict label of sample
-    prediction = classifier.predict(sample_features_norm)
-    prediction_prob = None
-
-    # Plot 
+    X_train = np.vstack([X_train.size_sqft, X_train.min_to_subway]).T
+    X_test = np.vstack([X_test.size_sqft, X_test.min_to_subway]).T
     r = np.exp(-(X_train_norm ** 2).sum(1))
 
-    # fig = plt.figure(figsize=(8,4))
-    # ax  = fig.add_subplot(111, projection='3d')
+    # Fit data to model and determine accuracy 
+    # classifier = SVC(kernel='linear', C = 0.01)
+    # classifier = SVC(kernel='rbf', gamma = 0.7, C = 0.1)
+    # classifier = SVC(kernel='poly', degree = 5)
+    classifier = SVC(kernel='rbf', gamma = 0.006, C = 0.7)
+    accuracy, f1 = fit_score_model(classifier, X_train, y_train, X_test, y_test)
 
-    ax = plt.subplot(projection='3d')
-    ax.scatter3D(X_train_norm[:,0], X_train_norm[:,1], r, c=y_train, s=50, cmap='RdYlBu', alpha=0.15)
-    ax.set_xlabel(feature_names_list[0])
-    ax.set_ylabel(feature_names_list[1])
-    ax.set_zlabel('r')
+    fig = plt.figure(figsize=(6,4))
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter3D(X_train[:,0], X_train[:,1], r, c=y_train, s=50, cmap='RdYlBu', alpha=0.15, label='Training data')
+    # ax.scatter3D(X_train_norm[:,0], X_train_norm[:,1], r, c=y_train, s=50, cmap='RdYlBu', alpha=0.15)
+    ax.scatter(sample_features[0], sample_features[1], 0, c='k', marker='o', s=200, label='Desired property')
+    ax.set_xlabel('Size of property (sqft)')
+    ax.set_ylabel('Mins to underground station')
+    ax.set_zlabel('kernal')
 
-    # Split the range into 30 equal parts and return in a 1D list
+    # Split the range into 20 equal parts and return in a 1D list
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
     zlim = ax.get_zlim()
-    xx = np.linspace(xlim[0], xlim[1], 30)
-    yy = np.linspace(ylim[0], ylim[1], 30)
-    zz = np.linspace(zlim[0], zlim[1], 30)
+    xx = np.linspace(xlim[0], xlim[1], 10)
+    yy = np.linspace(ylim[0], ylim[1], 10)
 
     # Return two 2D lists combining the coordinates in xx and yy
     YY, XX = np.meshgrid(yy, xx)
@@ -176,12 +175,23 @@ def svm_model(budget, sample_features):
     Z = Z.reshape(XX.shape) 
 
     # Show decision boundary
-    ax.contour(XX, YY, Z ,colors='k', levels=[-1, 0, 1], alpha=0.5, linestyles=['--', '-', '--'])
+    ax.contour(XX, YY, Z, colors='k', levels=[-2, 0, 2], alpha=0.5, linestyles=['--', '-', '--'], label='Decision boundary')
+    # ax.contour(XX, YY, Z ,colors='k', levels=[-2, 0, 2],alpha=0.2, extend3d=True) 
 
+    # ax.set_zlim(zmin=0, zmax=4)
+    ax.legend()
     plt.tight_layout()
     buffer = BytesIO()
     plot = plot_to_html(buffer)
     plt.close()
+
+
+    accuracy, f1 = fit_score_model(classifier, X_train_norm, y_train, X_test_norm, y_test)
+
+    # Predict label of sample
+    prediction = classifier.predict(sample_features_norm)
+    prediction_prob = None
+
 
     return plot, prediction, accuracy, f1
 

@@ -14,7 +14,7 @@
         <div class="col" style="width: 45%; padding-top: 20px; text-align: left">
             Enter your budget and the features of your desired propety, then
             <table>
-                <form action="{% url 'compare_ml:knn' %}" method="post">
+                <form action="{% url 'compare_ml:k-nearest-neighbours' %}" method="post">
                     {% csrf_token %}
                     {{ form.as_table }}
                     <input type="submit">
@@ -22,17 +22,40 @@
             </table>
 
             {% if prediction == 1 %}
-                <p>Your desired property is within the stated budget.</p>
+                <p>This model predicts your desired property is within the stated budget, and is accurate to <b>{{ accuracy }}%</b></p>
             {% else %}
-                <p>Your desired property is <b>NOT</b> within the stated budget.</p>
+                <p>This model predicts your desired property is <b>NOT</b> within budget, and is accurate to <b>{{ accuracy }}%</p>
             {% endif %}
-            <p>This model is accurate to {{ accuracy }}%</p>
+            <p style="font-weight: normal">(All the blue training data points on the graph are properties within your budget; all the red are not within your budget.)</p>
+
         </div>
     </div>
 
     <!-- ROW 3C -->
-    <div class="row">
-        explanation
+    <div class="row" style="font-weight: normal; padding-right: 60px;">
+        <h2>HOW DOES THE LOGISTIC REGRESSION MODEL WORK?</h2>
+        <p>The K-nearest neighbours labels a sample data point based on the <b>closest training data points</b>.
+            The distance between two points is calculated for each of the normalised variables. 
+            The label of the sample (within budget/not within budget) is based on the <b>label of the majority of the neighbours</b>. 
+            For example, if k = 10, the model considers the 10 nearest neighbours; if 7 of those are within budget, the model
+            will predict the sample to also be within budget. If the neighbours are equally split,
+            the label of the nearest neighbour is choosen as the prediction.
+        </p>
+
+        <p>If k is too large, the model is overfit: for example, if every point in the data set is considered a 
+            neighbour, the prediction will just be the average of the entire dataset, and thus no patterns are picked up on. 
+            Conversley, if k is too small, outliers may have a large influence on the prediction.
+        </p>
+        <br>
+        <u>ADVANTAGES:</u>   
+        <ul>
+            <li>More closely correlated to data points nearest to it, than a general logistic regression model.</li>
+        </ul>
+        <u>DISADVANTAGES:</u> 
+        <ul>
+            <li>May be more susceptible to outliers.</li>
+            <li>Cannot provide a probability of in which the sample will be a particular label.</li>
+        </ul>
     </div>
 
 {% endblock %}
